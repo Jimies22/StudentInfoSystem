@@ -75,6 +75,14 @@
     </a>
 </li>
 
+<!-- Nav Item - Grades -->
+<li class="nav-item {{ request()->routeIs('admin.grades') ? 'active' : '' }}">
+    <a class="nav-link" href="{{ route('admin.grades') }}">
+        <i class="fas fa-fw fa-graduation-cap"></i>
+        <span>Grades</span>
+    </a>
+</li>
+
             <!-- Divider -->
             <hr class="sidebar-divider">
 

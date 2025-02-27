@@ -31,27 +31,30 @@ class AdminController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'employee_id' => ['required', 'string', 'max:255', 'unique:admins'],
-            'department' => ['required', 'string', 'max:255'],
-            'position' => ['required', 'string', 'max:255'],
+            'student_id' => ['required', 'string', 'unique:students'],
+            'course' => ['required', 'string'],
+            'year' => ['required', 'in:1st Year,2nd Year,3rd Year,4th Year'],
+            'phone' => ['required', 'string'],
         ]);
 
+        // Create user first
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'role' => 'admin'
+            'password' => Hash::make($request->password),
+            'role' => 'student'
         ]);
 
-        Admin::create([
+        // Create student record
+        Student::create([
             'user_id' => $user->id,
-            'employee_id' => $request->employee_id,
-            'department' => $request->department,
-            'position' => $request->position,
+            'student_id' => $request->student_id,
+            'course' => $request->course,
+            'year' => $request->year,
+            'phone' => $request->phone,
         ]);
 
-        return redirect()->route('admin.dashboard')
-            ->with('success', 'Admin account created successfully.');
+        return redirect()->route('admin.students')->with('success', 'Student created successfully');
     }
 
     public function students()

@@ -5,6 +5,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\GradeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/profile', [AdminController::class, 'profile'])->name('admin.profile');
     Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
     Route::get('/admin/students', [AdminController::class, 'students'])->name('admin.students');
+    Route::post('/admin/students', [AdminController::class, 'store'])->name('admin.students.store');
     Route::get('/admin/students/{student}/edit', [AdminController::class, 'editStudent'])->name('admin.students.edit');
     Route::put('/admin/students/{student}', [AdminController::class, 'updateStudent'])->name('admin.students.update');
     Route::delete('/admin/students/{student}', [AdminController::class, 'destroyStudent'])->name('admin.students.destroy');
@@ -37,6 +39,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/enrollments', [EnrollmentController::class, 'store'])->name('admin.enrollments.store');
     Route::put('/admin/enrollments/{enrollment}', [EnrollmentController::class, 'update'])->name('admin.enrollments.update');
     Route::delete('/admin/enrollments/{enrollment}', [EnrollmentController::class, 'destroy'])->name('admin.enrollments.destroy');
+    Route::get('/admin/grades', [GradeController::class, 'index'])->name('admin.grades');
+    Route::post('/admin/grades', [GradeController::class, 'store'])->name('admin.grades.store');
+    Route::put('/admin/grades/{grade}', [GradeController::class, 'update'])->name('admin.grades.update');
 });
 
 require __DIR__.'/auth.php';

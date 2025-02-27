@@ -144,14 +144,11 @@
                 @method('PUT')
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="student_id{{ $enrollment->id }}">Student</label>
-                        <select class="form-control" id="student_id{{ $enrollment->id }}" name="student_id" required>
-                            @foreach($students as $student)
-                                <option value="{{ $student->id }}" {{ $enrollment->student_id == $student->id ? 'selected' : '' }}>
-                                    {{ $student->student_id }} - {{ $student->user->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <label for="student_search{{ $enrollment->id }}">Student</label>
+                        <input type="text" class="form-control" id="student_search{{ $enrollment->id }}" 
+                               value="{{ $enrollment->student->student_id }} - {{ $enrollment->student->user->name }}" required>
+                        <input type="hidden" name="student_id" id="student_id{{ $enrollment->id }}" 
+                               value="{{ $enrollment->student_id }}">
                     </div>
                     <div class="form-group">
                         <label for="subject_id{{ $enrollment->id }}">Subject</label>
@@ -202,11 +199,22 @@
 
 @push('styles')
 <link href="{{ asset('vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+<link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+<style>
+.ui-autocomplete {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 9999;
+}
+</style>
 @endpush
 
 @push('scripts')
 <script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 <script>
 $(document).ready(function() {
     $('#dataTable').DataTable({
@@ -224,6 +232,65 @@ $(document).ready(function() {
             "info": "Showing _START_ to _END_ of _TOTAL_ entries"
         }
     });
+
+    // Student Autocomplete
+    $("#student_search").autocomplete({
+        source: function(request, response) {
+            var results = $.map(students, function(student) {
+                if (student.name.toLowerCase().indexOf(request.term.toLowerCase()) >= 0 ||
+                    student.student_id.toLowerCase().indexOf(request.term.toLowerCase()) >= 0) {
+                    return {
+                        label: student.student_id + ' - ' + student.name,
+                        value: student.student_id + ' - ' + student.name,
+                        id: student.id
+                    }
+                }
+            });
+            response(results.slice(0, 10)); // Limit to 10 results
+        },
+        minLength: 1,
+        select: function(event, ui) {
+            $("#student_id").val(ui.item.id);
+        }
+    });
+
+    // Subject Autocomplete
+    $("#subject_search").autocomplete({
+        source: function(request, response) {
+            var results = $.map(subjects, function(subject) {
+                if (subject.subject_name.toLowerCase().indexOf(request.term.toLowerCase()) >= 0 ||
+                    subject.subject_code.toLowerCase().indexOf(request.term.toLowerCase()) >= 0) {
+                    return {
+                        label: subject.subject_code + ' - ' + subject.subject_name,
+                        value: subject.subject_code + ' - ' + subject.subject_name,
+                        id: subject.id
+                    }
+                }
+            });
+            response(results.slice(0, 10)); // Limit to 10 results
+        },
+        minLength: 1,
+        select: function(event, ui) {
+            $("#subject_id").val(ui.item.id);
+        }
+    });
 });
+
+// Data for autocomplete
+var students = {!! json_encode($students->map(function($student) {
+    return [
+        'id' => $student->id,
+        'name' => $student->user->name,
+        'student_id' => $student->student_id
+    ];
+})) !!};
+
+var subjects = {!! json_encode($subjects->map(function($subject) {
+    return [
+        'id' => $subject->id,
+        'subject_name' => $subject->subject_name,
+        'subject_code' => $subject->subject_code
+    ];
+})) !!};
 </script>
 @endpush
