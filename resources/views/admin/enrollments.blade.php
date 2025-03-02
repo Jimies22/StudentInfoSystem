@@ -1,5 +1,5 @@
 @extends('layouts.adminLayout')
-
+@section('title', 'Enrollments')
 @section('content')
 <div class="container-fluid">
     @if(session('success'))

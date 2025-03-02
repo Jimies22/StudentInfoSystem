@@ -1,5 +1,5 @@
 @extends('layouts.adminLayout')
-
+@section('title', 'Grades')
 @section('content')
 <div class="container-fluid">
     @if(session('success'))
@@ -14,9 +14,14 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Grades Management</h6>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addGradeModal">
-                <i class="fas fa-plus"></i> Add Grade
-            </button>
+            <div>
+                <a href="{{ route('admin.grades.export') }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-download fa-sm text-white-50"></i> Export Grades
+                </a>
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addGradeModal">
+                    <i class="fas fa-plus fa-sm text-white-50"></i> Add Grade
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">

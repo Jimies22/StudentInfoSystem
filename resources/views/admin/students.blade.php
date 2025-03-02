@@ -1,5 +1,5 @@
 @extends('layouts.adminLayout')
-
+@section('title', 'Students')
 @section('content')
 <!-- Begin Page Content -->
 <div class="container-fluid">

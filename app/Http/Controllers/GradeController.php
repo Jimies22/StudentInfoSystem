@@ -5,16 +5,34 @@ namespace App\Http\Controllers;
 use App\Models\Grade;
 use App\Models\Enrollment;
 use Illuminate\Http\Request;
+use App\Services\LoggingService;
+use Illuminate\Support\Facades\Cache;
 
 class GradeController extends Controller
 {
+    protected $customMessages = [
+        'midterm.required' => 'Midterm grade is required.',
+        'midterm.numeric' => 'Midterm grade must be a number.',
+        'midterm.min' => 'Midterm grade cannot be less than :min.',
+        'midterm.max' => 'Midterm grade cannot be greater than :max.',
+        'final.required' => 'Final grade is required.',
+        'final.numeric' => 'Final grade must be a number.',
+        'final.min' => 'Final grade cannot be less than :min.',
+        'final.max' => 'Final grade cannot be greater than :max.',
+        'status.required' => 'Status is required.',
+        'status.in' => 'Selected status is invalid.',
+    ];
+
     public function index()
     {
         if (auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
         
-        $enrollments = Enrollment::with(['student.user', 'subject', 'grade'])->get();
+        $enrollments = Cache::remember('enrollments.all', 3600, function () {
+            return Enrollment::with(['student.user', 'subject', 'grade'])->get();
+        });
+        
         return view('admin.grades', compact('enrollments'));
     }
 
@@ -24,7 +42,8 @@ class GradeController extends Controller
             'enrollment_id' => ['required', 'exists:enrollments,id'],
             'midterm' => ['required', 'numeric', 'min:0', 'max:100'],
             'final' => ['required', 'numeric', 'min:0', 'max:100'],
-        ]);
+            'status' => ['required', 'in:Regular,INC,FDA'],
+        ], $this->customMessages);
 
         // Check if grade already exists
         if (Grade::where('enrollment_id', $request->enrollment_id)->exists()) {
@@ -35,7 +54,7 @@ class GradeController extends Controller
         $grade = $this->calculateGrade($request->midterm, $request->final);
         $remarks = $this->calculateRemarks($grade, $request->status);
 
-        Grade::create([
+        $grade = Grade::create([
             'enrollment_id' => $request->enrollment_id,
             'midterm' => $request->midterm,
             'final' => $request->final,
@@ -43,6 +62,12 @@ class GradeController extends Controller
             'remarks' => $remarks,
             'status' => $request->status
         ]);
+
+        LoggingService::logGradeAction(
+            'grade_created',
+            $grade->toArray(),
+            auth()->user()
+        );
 
         return redirect()->route('admin.grades')
             ->with('success', 'Grade added successfully');

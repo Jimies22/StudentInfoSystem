@@ -13,7 +13,7 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
-        if (auth()->user()->role !== 'admin') {
+        if (!auth()->user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
         return view('admin.dashboard');

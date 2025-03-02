@@ -1,5 +1,5 @@
 @extends('layouts.studentLayout')
-
+@section('title', 'Student Dashboard')
 @section('content')
 <div class="container-fluid">
     <!-- Page Heading -->
