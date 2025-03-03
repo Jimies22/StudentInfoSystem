@@ -45,7 +45,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/admin/enrollments/{enrollment}', [EnrollmentController::class, 'destroy'])->name('admin.enrollments.destroy');
         Route::get('/admin/grades', [GradeController::class, 'index'])->name('admin.grades');
         Route::post('/admin/grades', [GradeController::class, 'store'])->name('admin.grades.store');
-        Route::put('/admin/grades/{grade}', [GradeController::class, 'update'])->name('admin.grades.update');
+        Route::put('/admin/grades/{id}', [GradeController::class, 'update'])->name('admin.grades.update');
         Route::get('/admin/grades/export', [GradeExportController::class, 'export'])->name('admin.grades.export');
     });
 });

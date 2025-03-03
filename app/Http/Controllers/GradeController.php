@@ -73,16 +73,22 @@ class GradeController extends Controller
             ->with('success', 'Grade added successfully');
     }
 
-    public function update(Request $request, Grade $grade)
+    public function update(Request $request, $id)
     {
+        // Find the grade or fail
+        $grade = Grade::findOrFail($id);
+        
         $request->validate([
             'midterm' => ['required', 'numeric', 'min:0', 'max:100'],
             'final' => ['required', 'numeric', 'min:0', 'max:100'],
             'status' => ['required', 'in:Regular,INC,FDA'],
-        ]);
+        ], $this->customMessages);
 
         $finalGrade = $this->calculateGrade($request->midterm, $request->final);
         $remarks = $this->calculateRemarks($finalGrade, $request->status);
+
+        // Store old values for logging
+        $oldValues = $grade->toArray();
 
         $grade->update([
             'midterm' => $request->midterm,
@@ -92,7 +98,20 @@ class GradeController extends Controller
             'status' => $request->status
         ]);
 
-        return redirect()->route('admin.grades')->with('success', 'Grade updated successfully');
+        // Log the grade update
+        LoggingService::logGradeAction(
+            'grade_updated',
+            [
+                'old' => $oldValues,
+                'new' => $grade->fresh()->toArray()
+            ],
+            auth()->user()
+        );
+
+        Cache::forget('enrollments.all'); // Clear cache after update
+
+        return redirect()->route('admin.grades')
+            ->with('success', 'Grade updated successfully');
     }
 
     private function calculateGrade($midterm, $final)

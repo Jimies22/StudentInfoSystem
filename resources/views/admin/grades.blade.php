@@ -11,6 +11,28 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Grades Management</h6>
@@ -188,6 +210,36 @@ $(document).ready(function() {
     $('#dataTable').DataTable({
         "order": [[0, "asc"]],
         "pageLength": 25
+    });
+
+    function calculateGrade(midterm, final) {
+        const average = (parseFloat(midterm) + parseFloat(final)) / 2;
+        
+        if (average >= 97) return 1.00;
+        if (average >= 94) return 1.25;
+        if (average >= 91) return 1.50;
+        if (average >= 88) return 1.75;
+        if (average >= 85) return 2.00;
+        if (average >= 82) return 2.25;
+        if (average >= 79) return 2.50;
+        if (average >= 76) return 2.75;
+        if (average >= 75) return 3.00;
+        return 5.00;
+    }
+
+    $('input[name="midterm"], input[name="final"]').on('change', function() {
+        const form = $(this).closest('form');
+        const midterm = form.find('input[name="midterm"]').val();
+        const final = form.find('input[name="final"]').val();
+        
+        if (midterm && final) {
+            const grade = calculateGrade(midterm, final);
+            if (!form.find('input[name="grade"]').length) {
+                form.append(`<input type="hidden" name="grade" value="${grade}">`);
+            } else {
+                form.find('input[name="grade"]').val(grade);
+            }
+        }
     });
 });
 </script>
