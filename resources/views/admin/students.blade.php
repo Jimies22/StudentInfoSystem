@@ -16,16 +16,61 @@
     <h1 class="h3 mb-2 text-gray-800">Students</h1>
     <p class="mb-4">Manage and view all student records in the system. You can search, sort, and filter the data as needed.</p>
 
+    <style>
+        .table-container {
+            max-height: calc(100vh - 300px); /* Adjust this value based on your header/footer size */
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .table-container thead th {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            z-index: 1;
+            border-top: none;
+        }
+
+        /* Add shadow to header when scrolling */
+        .table-container thead::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            height: 4px;
+            background: linear-gradient(rgba(0,0,0,0.1), transparent);
+        }
+
+        /* Custom scrollbar styling */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
-<div class="card-header py-3 d-flex justify-content-between align-items-center">
-    <h6 class="m-0 font-weight-bold text-primary">Students List</h6>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addStudentModal">
-        <i class="fas fa-plus"></i> Add Student
-    </button>
-</div>
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Students List</h6>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addStudentModal">
+                <i class="fas fa-plus"></i> Add Student
+            </button>
+        </div>
         <div class="card-body">
-            <div class="table-responsive">
+            <div class="table-container">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
@@ -196,7 +241,7 @@
 <script>
 $(document).ready(function() {
     $('#dataTable').DataTable({
-        "dom": '<"d-flex justify-content-between align-items-center mb-4"<"d-flex align-items-center"l><"d-flex align-items-center"f>>rtip',
+        "dom": '<"d-flex justify-content-between align-items-center mb-4"<"d-flex align-items-center"l><"d-flex align-items-center"f>>rt<"d-flex justify-content-between align-items-center"<"d-flex align-items-center"i><"d-flex align-items-center"p>>',
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
         "pageLength": 10,
         "searching": true,
@@ -204,6 +249,7 @@ $(document).ready(function() {
         "info": true,
         "autoWidth": false,
         "responsive": true,
+        "scrollCollapse": true,
         "language": {
             "search": "Search:",
             "lengthMenu": "Show _MENU_ entries",
